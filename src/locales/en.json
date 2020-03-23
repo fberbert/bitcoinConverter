@@ -1,0 +1,8 @@
+{
+    "appName": "Bitcoin Calculator",
+    "dollar": "US Dollar",
+    "real": "Brazilian Real",
+    "bitcoin": "Bitcoin",
+    "btnCalculate": "Calculate",
+    "btnClear": "Clear"
+}
