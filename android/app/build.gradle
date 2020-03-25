@@ -128,7 +128,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.bitcoincalculator"
+        applicationId "com.bitcoinconverter"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

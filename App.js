@@ -1,19 +1,22 @@
-import React, { Component } from 'react';
-import { StyleSheet, View, YellowBox, Alert } from 'react-native';
+import React, { Component } from 'react'
+import { StyleSheet, View, YellowBox, Alert, TouchableHighlight } from 'react-native'
 import {
   Container, Header, Title, Content, Body, Text, Button, Left, Right, 
-  Icon, Form, Input, Label, Item, Subtitle, StyleProvider
-} from 'native-base';
-import IconB from 'react-native-vector-icons/FontAwesome';
-import IconC from 'react-native-vector-icons/MaterialCommunityIcons';
-import 'intl';
-import 'intl/locale-data/jsonp/pt-BR';
-import 'intl/locale-data/jsonp/en';
-// import getTheme from './native-base-theme/components';
-import i18n from './src/i18n';
-import { NativeModules, Platform } from 'react-native';
+  Form, Input, Item 
+} from 'native-base'
+import IconB from 'react-native-vector-icons/FontAwesome'
+import IconC from 'react-native-vector-icons/MaterialCommunityIcons'
+import 'intl'
+import 'intl/locale-data/jsonp/pt-BR'
+import 'intl/locale-data/jsonp/en'
+// import getTheme from './native-base-theme/components'
+import i18n from './src/i18n'
+import { NativeModules, Platform } from 'react-native'
+// import { limpar } from './src/functions'
+import SplashScreen from './src/SplashScreen'
+import SobreScreen from './src/SobreScreen'
 
-YellowBox.ignoreWarnings(['Require cycle', 'state update']);
+YellowBox.ignoreWarnings(['Require cycle', 'state update', 'during an existing']);
 
 const deviceLanguage =
           Platform.OS === 'ios'
@@ -22,14 +25,14 @@ const deviceLanguage =
             : NativeModules.I18nManager.localeIdentifier;
 
 //definir locale / translation
-console.log("linguagem: " + deviceLanguage); 
-console.log('t: ' + Object.keys(i18n.translations));
+// console.log("linguagem: " + deviceLanguage); 
+// console.log('t: ' + Object.keys(i18n.translations));
 
 if (Object.keys(i18n.translations).includes(deviceLanguage)) {
   i18n.defaultLocale = deviceLanguage;
   i18n.locale = deviceLanguage;
 } // else default i18n.js applies
-console.log('i18n: ' + i18n.locale);
+// console.log('i18n: ' + i18n.locale);
 
 export default class App extends Component {
 
@@ -38,22 +41,25 @@ export default class App extends Component {
     cotacaoBTCBRL: '0',
     cotacaoUSDBRL: '0',
     iconBTCUSD: 'caret-up',
-    iconBTCUSDstyle: styles.preto,
+    iconBTCUSDstyle: styles.cinza,
     iconBTCBRL: 'caret-up',
-    iconBTCBRLstyle: styles.preto,
+    iconBTCBRLstyle: styles.cinza,
     inputUSD: null,
     inputBRL: null,
-    inputBRC: null,
+    inputBTC: null,
+    isLoading: true,
+    showHome: true,
+    showSobre: false,
   }
 
-  componentDidMount() {
-    this._isMounted = true;
+  async componentDidMount() {
+    // this._isMounted = true;
 
-    this.getCotacaoBTCUSD();
-    this.timer = setInterval( () => this.getCotacaoBTCUSD(), 60000);
+    this.getCotacaoBTCUSD()
+    this.getCotacaoBTCBRL()
 
-    this.getCotacaoBTCBRL();
-    this.timer = setInterval( () => this.getCotacaoBTCBRL(), 60000);
+    this.timer = setInterval( () => this.getCotacaoBTCUSD(), 60000)
+    this.timer = setInterval( () => this.getCotacaoBTCBRL(), 60000)
   }
 
   componentWillUnmount() {
@@ -72,14 +78,15 @@ export default class App extends Component {
     myHeaders.append('pragma', 'no-cache');
     myHeaders.append('cache-control', 'no-cache');
 
-    fetch('https://api.bitfinex.com/v1/pubticker/btcusd', {method: "GET", headers: myHeaders})
+    // fetch('https://api.bitfinex.com/v1/pubticker/btcusd', {method: "GET", headers: myHeaders})
+    fetch('https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=BTC-USDT', {method: "GET", headers: myHeaders})
       .then((response) => response.text())
       .then((responseData) =>
       {
 
-        if (responseData.includes('last_price')) {
+        if (responseData.includes('price')) {
           responseData = JSON.parse(responseData);
-          var valor = responseData['last_price'];
+          var valor = responseData['data']['price'];
           // console.log(this.state.cotacaoBTCUSD + ' > ' + valor);
 
           if (this.state.cotacaoBTCUSD > valor && this.state.cotacaoBTCUSD > 0) {
@@ -94,6 +101,7 @@ export default class App extends Component {
           // valor = this.formatarMoeda(valor, 'USD').replace(/US\$/, 'US$ ');
 
           this.setState({cotacaoBTCUSD: valor});
+          return(true)
           // .toLocaleString('pt-br', {style: 'currency', currency: 'USD'})
         }
       })
@@ -125,6 +133,7 @@ export default class App extends Component {
           }
 
           this.setState({cotacaoBTCBRL: valor});
+          return(true)
         }
       })
       .catch((error) => {
@@ -160,6 +169,10 @@ export default class App extends Component {
     (qBRL) ? qBRL = (this.formatarMoeda(qBRL, 'BRL')).replace(/R\$/, '') : null;
     (qBTC) ? qBTC = qBTC.toString() : null;
 
+    if (this.state.cotacaoBTCUSD==='0' || this.state.cotacaoBTCBRL==='0') {
+      qUSD, qBRL, qBTC = '0';
+    }
+
     this.setState({
       inputUSD: qUSD,
       inputBRL: qBRL,
@@ -173,10 +186,50 @@ export default class App extends Component {
       inputBRL: null,
       inputBTC: null
     });
+  }
 
+  setLoaded() {
+    this.setState({isLoading: false})
+  }
+
+  currencyOnly(myObject, text) {
+    let newText = '';
+    let characters = '0123456789';
+    if (myObject==="inputBTC") {
+      characters = '0123456789.';
+    }
+
+    for (var i=0; i < text.length; i++) {
+        if(characters.indexOf(text[i]) > -1 ) {
+            newText = newText + text[i];
+        }
+    }
+
+    if (myObject==="inputUSD") { this.setState({inputUSD: newText}); }
+    if (myObject==="inputBRL") { this.setState({inputBRL: newText}); }
+    if (myObject==="inputBTC") { this.setState({inputBTC: newText}); }
   }
 
   render() {
+
+    if (this.state.cotacaoBTCUSD>0 && this.state.cotacaoBTCBRL>0 && this.state.isLoading===true) {
+      this.setLoaded()
+    }
+
+    if (this.state.isLoading) {
+      return <SplashScreen />
+    }
+
+    let viewHomeStyle = ''
+    let viewSobreStyle = ''
+    if (this.state.showHome) {
+      viewSobreStyle = styles.hidden
+    }
+
+    if (this.state.showSobre) {
+      viewHomeStyle = styles.hidden
+      // corpo = <SobreScreen />
+    }
 
     return(
       // <StyleProvider style={getTheme()}>
@@ -187,12 +240,28 @@ export default class App extends Component {
             <Title>{i18n.t('appName')}</Title>
           </Body>
           <Right>
-            <Button transparent onPress={ () => Alert.alert('Sobre', 'Fábio Berbert de Paula\nfberbert@gmail.com')}>
+            <Button transparent 
+            onPress={ () => { 
+              this.setState({showHome: true}); 
+              this.setState({showSobre: false})}
+            }>
+              <IconB name='home' style={styles.branco} size={20} />
+            </Button>
+
+            <Button transparent 
+            onPress={ () => { 
+              this.setState({showHome: false}); 
+              this.setState({showSobre: true})}
+            }>
+
               <IconB name='info-circle' style={styles.branco} size={20} />
             </Button>
             </Right>
         </Header>
-        <Content style={styles.display}>
+
+        <Content style={styles.myContent}>
+        <View style={viewHomeStyle}>{/* View home */}
+        <View style={styles.display}>
 
           <View style={styles.linha}>
             <View style={styles.bitcao}>
@@ -211,43 +280,61 @@ export default class App extends Component {
                 </Text>
             </View>
           </View>
+          </View>
 
+          <View style={styles.myForm}>
           <Form>
             <Item>
               <IconC name='currency-usd' style={styles.branco} />
               <Input placeholder={ i18n.t('dollar') }  style={styles.branco} 
-              onChangeText={(inputUSD) => this.setState({inputUSD})} 
+              keyboardType='numeric'
+              onChangeText={(text) => this.currencyOnly('inputUSD', text)} 
               value={this.state.inputUSD} />
             </Item>
 
             <Item>
               <IconC name='currency-brl' style={styles.branco} />
               <Input placeholder={ i18n.t('real') }  style={styles.branco} 
-              onChangeText={(inputBRL) => this.setState({inputBRL})} 
+              keyboardType='numeric'
+              onChangeText={(text) => this.currencyOnly('inputBRL', text)} 
               value={this.state.inputBRL} />
             </Item>
 
             <Item>
               <IconB name='bitcoin' style={styles.branco} />
               <Input placeholder={ i18n.t('bitcoin') } style={styles.branco} 
-              onChangeText={(inputBTC) => this.setState({inputBTC})} 
+              keyboardType='numeric'
+              onChangeText={(text) => this.currencyOnly('inputBTC', text)} 
               value={this.state.inputBTC} />
             </Item>
-
           </Form>
           <View style={styles.viewCalcular}>
-              <Button iconLeft light transparent style={styles.butCalcular}
+              {/* <Button iconLeft light transparent style={styles.butCalcular} */}
+              <TouchableHighlight style={styles.butCalcular}
+              underlayColor='#888' 
               onPress={() => this.calcular()}>
-                <IconB name='calculator' style={styles.branco} />
-                <Text>{ i18n.t("btnCalculate") }</Text>
-              </Button>
+                <Text style={styles.branco}>
+                    <IconB name='calculator' />{'  '} 
+                    { i18n.t('btnCalculate') }
+                </Text>
+              </TouchableHighlight>
 
-              <Button iconLeft light transparent style={styles.butCalcular}
+              <TouchableHighlight style={styles.butCalcular}
+              underlayColor='#888' 
               onPress={() => this.limpar()}>
-                <IconB name='eraser' style={styles.branco} />
-                <Text>{ i18n.t("btnClear") }</Text>
-              </Button>
+                
+                <Text style={styles.branco}>
+                  <IconB name='eraser' />{'  '}
+                  { i18n.t('btnClear') }
+                </Text>
+              </TouchableHighlight>
           </View>
+          </View>
+        </View>{/* View home */}
+
+        <View style={viewSobreStyle}>{/* view sobre */}
+          <SobreScreen />
+        </View>
 
         </Content>
       </Container>
@@ -257,11 +344,21 @@ export default class App extends Component {
 }
 
 const styles = StyleSheet.create({
+  myContent: {
+    backgroundColor: '#000',
+  },
   display: {
+    padding: 10,
+    paddingBottom: 20,
+    backgroundColor: '#444',
+    alignItems: 'center'
+  },
+  myForm: {
     padding: 10,
     margin: 10,
     backgroundColor: '#000',
   },
+
   displayText: {
     textAlign: 'left',
     color: '#fff',
@@ -290,15 +387,22 @@ const styles = StyleSheet.create({
   vermelho: {
     color: '#f00',
   },
+  cinza: {
+    color: '#444'
+  },
   viewCalcular: {
     flexDirection: 'row',
     padding: 20,
+    marginTop: 10,
     alignItems: 'center',
     justifyContent: 'space-around'
   },
   butCalcular: {
     width: '45%',
-    padding: 8,
+    padding: 15,
+    alignItems: "center",
+    borderRadius: 10,
+    backgroundColor: '#444'
   },
   myHeader: {
     backgroundColor: '#111',
@@ -306,6 +410,12 @@ const styles = StyleSheet.create({
   myHeaderBody: {
     flex: 3,
     alignItems: 'center'
+  },
+  iconB: {
+    marginRight: 10,
+  },
+  hidden: {
+    display: "none"
   }
 });
 

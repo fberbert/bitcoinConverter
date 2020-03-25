@@ -1,8 +1,13 @@
 {
-    "appName": "Calculadora Bitcoin",
+    "appName": "Conversor Bitcoin",
     "dollar": "Dólar",
     "real": "Real",
     "bitcoin": "Bitcoin",
     "btnCalculate": "Calcular",
-    "btnClear": "Limpar"
+    "btnClear": "Limpar",
+    "about": "Sobre",
+    "developedBy": "Desenvolvido por",
+    "aboutTecnology": "Tecnologia usada: React Native",
+    "aboutSource": "Fonte das cotações"
+
 }

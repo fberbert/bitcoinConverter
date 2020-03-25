@@ -4,5 +4,9 @@
     "real": "Brazilian Real",
     "bitcoin": "Bitcoin",
     "btnCalculate": "Calculate",
-    "btnClear": "Clear"
+    "btnClear": "Clear",
+    "about": "About",
+    "developedBy": "Developed by",
+    "aboutTecnology": "Language adopted: React Native",
+    "aboutSource": "Last price sources"
 }
