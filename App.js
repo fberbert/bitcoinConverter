@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { StyleSheet, View, YellowBox, Alert, TouchableHighlight, ImageBackground, Switch } from 'react-native'
+import { StyleSheet, View, YellowBox, Alert, 
+  TouchableHighlight, ImageBackground, Switch } from 'react-native'
 import {
   Container, Header, Title, Content, Body, Text, Button, Left, Right, 
   Form, Input, Item 
@@ -40,9 +41,9 @@ export default class App extends Component {
     cotacaoBTCUSD: '0',
     cotacaoBTCBRL: '0',
     cotacaoUSDBRL: '0',
-    iconBTCUSD: 'caret-up',
+    iconBTCUSD: 'genderless',
     iconBTCUSDstyle: styles.cinza,
-    iconBTCBRL: 'caret-up',
+    iconBTCBRL: 'genderless',
     iconBTCBRLstyle: styles.cinza,
     inputUSD: null,
     inputBRL: null,
@@ -75,8 +76,11 @@ export default class App extends Component {
 
   getCotacaoBTCUSD() {
 
-    if (!this.state.autoUpdate)
+    if (!this.state.autoUpdate) {
+      this.setState({iconBTCUSDstyle: styles.cinza})
+      this.setState({iconBTCUSD: 'genderless'});
       return false
+    }
 
     var myHeaders = new Headers();
     myHeaders.append('pragma', 'no-cache');
@@ -97,10 +101,14 @@ export default class App extends Component {
             // console.log('desceu');
             this.setState({iconBTCUSD: 'caret-down'});
             this.setState({iconBTCUSDstyle: styles.vermelho});
-          } else if (this.state.cotacaoBTCUSD > 0) {
+          } else if (this.state.cotacaoBTCUSD > 0 && this.cotacaoBTCUSD < valor) {
             // console.log('subiu');
             this.setState({iconBTCUSD: 'caret-up'});
             this.setState({iconBTCUSDstyle: styles.verde});
+          } else {
+            // console.log('nao mexeu');
+            this.setState({iconBTCUSD: 'genderless'});
+            this.setState({iconBTCUSDstyle: styles.cinza});
           }
           // valor = this.formatarMoeda(valor, 'USD').replace(/US\$/, 'US$ ');
 
@@ -116,6 +124,12 @@ export default class App extends Component {
 
   getCotacaoBTCBRL() {
 
+    if (!this.state.autoUpdate) {
+      this.setState({iconBTCBRLstyle: styles.cinza})
+      this.setState({iconBTCBRL: 'genderless'});
+      return false
+    }
+
     fetch('https://www.mercadobitcoin.net/api/BTC/ticker/', {method: "GET"})
       .then((response) => response.text())
       .then((responseData) =>
@@ -130,10 +144,14 @@ export default class App extends Component {
             // console.log('desceu');
             this.setState({iconBTCBRL: 'caret-down'});
             this.setState({iconBTCBRLstyle: styles.vermelho});
-          } else if (this.state.cotacaoBTCBRL > 0) {
+          } else if (this.state.cotacaoBTCBRL > 0 && this.state.cotacaoBTCBRL < valor) {
             // console.log('subiu');
             this.setState({iconBTCBRL: 'caret-up'});
             this.setState({iconBTCBRLstyle: styles.verde});
+          } else {
+            // console.log('não mexeu');
+            this.setState({iconBTCBRL: 'genderless'});
+            this.setState({iconBTCBRLstyle: styles.cinza});
           }
 
           this.setState({cotacaoBTCBRL: valor});
@@ -272,17 +290,17 @@ export default class App extends Component {
 
           <View style={styles.linha}>
             <View style={styles.bitcao}>
-              <Text style={styles.bitcaoText}><IconB name='bitcoin' size={50} /> =</Text>
+              <Text style={[styles.bitcaoText, styles.myShadow]}><IconB name='bitcoin' size={50} /> =</Text>
             </View>
-            <View style={[styles.bitcao, 'padding: 0']}>
+            <View style={styles.bitcao}>
               <Text style={styles.displayText}>
-                {this.formatarMoeda(this.state.cotacaoBTCUSD, 'USD')
-                .replace(/US\$/, 'US$ ')} <IconB name={this.state.iconBTCUSD} 
-                style={this.state.iconBTCUSDstyle} size={25} />
-              </Text>
+                <Text style={[styles.displayText, styles.myShadow]}>{this.formatarMoeda(this.state.cotacaoBTCUSD, 'USD')
+                .replace(/US\$/, 'US$ ')}</Text> <IconB name={this.state.iconBTCUSD} 
+                style={this.state.iconBTCUSDstyle} size={25} /></Text>
               <Text style={styles.displayText}>
+                <Text style={[styles.displayText, styles.myShadow]}>
                 {this.formatarMoeda(this.state.cotacaoBTCBRL, 'BRL')
-                .replace(/R\$/, 'R$ ')} <IconB name={this.state.iconBTCBRL} 
+                .replace(/R\$/, 'R$ ')}</Text> <IconB name={this.state.iconBTCBRL} 
                 style={this.state.iconBTCBRLstyle} size={25} />
                 </Text>
             </View>
@@ -422,7 +440,7 @@ const styles = StyleSheet.create({
     color: '#f00',
   },
   cinza: {
-    color: '#444'
+    color: '#444',
   },
   viewCalcular: {
     flexDirection: 'row',
@@ -456,5 +474,10 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     justifyContent: "center",
   },
+  myShadow: {
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 2, height: 2 }, 
+    textShadowRadius: 1,
+  }
 });
 

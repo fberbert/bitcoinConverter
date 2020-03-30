@@ -1,42 +1,44 @@
 import React, { Component } from 'react'
-import { View, Text, Image, Dimensions } from 'react-native'
+import { View, Text, ImageBackground, Dimensions } from 'react-native'
 
 const screenWidth = Math.round( Dimensions.get('window').width * 0.8)
 const screenHeight = Math.round(Dimensions.get('window').height)
 
-const viewStyles = { 
-    backgroundColor: 'white',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+const imageBG = { 
+    flex: 9,
+    resizeMode: "cover",
     padding: 30,
+    opacity: 0.6,
 }
 
 const textStyles = {
-    color: 'orange',
-    fontSize: 30,
-    fontWeight: 'bold'
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'normal',
+    textTransform: 'uppercase',
 }
 
-const imgStyles = {
-    width: screenWidth,
-    height: screenWidth,
-    resizeMode: 'stretch'   
+const viewStyles = {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: "center",
+    alignItems: 'flex-end',
+    paddingRight: 20,
 }
+
 
 export default class SplashScreen extends Component {
 
   render() {
     return (
+      <View style={{flex: 1, backgroundColor: 'rgba(0, 0, 0, 1)'}}>
+      <ImageBackground source={require('./icons/btc-wallpaper.png')}
+        resizeMode="stretch"
+        style={imageBG}>
+      </ImageBackground>
       <View style={viewStyles}>
-        <Image
-          style={imgStyles} 
-          source={require('./icons/bitcoin512x512.png')}
-        />
-        <Text style={textStyles}>
-          Loading...
-        </Text>
-
+          <Text style={textStyles}>Loading...</Text>
+      </View>
       </View>
     )
   }

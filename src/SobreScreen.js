@@ -51,7 +51,14 @@ const styles = StyleSheet.create({
     }, 
     myH1: {
         color: '#fff',
-        fontSize: 25
+        fontSize: 15,
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#fff',
+        paddingBottom: 3,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 2, height: 2 }, 
+        textShadowRadius: 1,
+        textTransform: 'uppercase'
     },
     myText: {
         fontSize: 16,
