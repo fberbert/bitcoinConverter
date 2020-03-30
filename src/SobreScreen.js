@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { Content, Text, H1 } from 'native-base'
 import i18n from './i18n'
 import { NativeModules, Platform } from 'react-native'
@@ -19,7 +19,9 @@ export default class SobreScreen extends Component {
     render() {
         return (
                 <Content style={styles.contentStyle}>
-                    <H1 style={styles.myH1}>{i18n.t('about')}</H1>
+                    <View style={styles.myCard}>
+                            <H1 style={styles.myH1}>{i18n.t('about')}</H1>
+                    
                     <Text style={styles.myText}>
                     {'\n'}
                         {i18n.t('developedBy')}:{'\n'}{'\n'}
@@ -36,6 +38,7 @@ export default class SobreScreen extends Component {
                         USD -> Kucoin{'\n'}
                         BRL -> Mercado Bitcoin
                     </Text>
+                    </View>
                 </Content>
 
         )
@@ -53,5 +56,13 @@ const styles = StyleSheet.create({
     myText: {
         fontSize: 16,
         color: '#fff'
+    },
+    myCard: {
+        borderRadius: 20,
+        borderColor: '#ccc',
+        borderWidth: 2,
+        padding: 30,
+        backgroundColor: '#000',
+        opacity: 0.75,
     }
 })

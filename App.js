@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, View, YellowBox, Alert, TouchableHighlight } from 'react-native'
+import { StyleSheet, View, YellowBox, Alert, TouchableHighlight, ImageBackground, Switch } from 'react-native'
 import {
   Container, Header, Title, Content, Body, Text, Button, Left, Right, 
   Form, Input, Item 
@@ -50,6 +50,7 @@ export default class App extends Component {
     isLoading: true,
     showHome: true,
     showSobre: false,
+    autoUpdate: true,
   }
 
   async componentDidMount() {
@@ -73,6 +74,9 @@ export default class App extends Component {
   } 
 
   getCotacaoBTCUSD() {
+
+    if (!this.state.autoUpdate)
+      return false
 
     var myHeaders = new Headers();
     myHeaders.append('pragma', 'no-cache');
@@ -259,9 +263,12 @@ export default class App extends Component {
             </Right>
         </Header>
 
+          <ImageBackground source={require('./src/icons/btc-wallpaper.png')}
+          resizeMode="stretch"
+          style={styles.imageBG}>
         <Content style={styles.myContent}>
         <View style={viewHomeStyle}>{/* View home */}
-        <View style={styles.display}>
+        <View style={styles.display}>{/* View display */}
 
           <View style={styles.linha}>
             <View style={styles.bitcao}>
@@ -280,7 +287,27 @@ export default class App extends Component {
                 </Text>
             </View>
           </View>
-          </View>
+
+
+
+          </View>{/* end View display */}
+
+        <View style={{flexDirection: 'row'}}>
+          <Right style={{backgroundColor: "#000", 
+          flexDirection: 'row', justifyContent: 'flex-end',
+          alignItems: 'center'}}>
+          <Text style={[styles.branco, {fontSize: 8}]}>AUTO UPDATE:</Text>
+           <Switch 
+            style={{color: '#fff', width: 50, height: 50}}
+            // trackColor={{ false: "#AA2B0E", true: "#25A542" }}
+            thumbColor={this.state.autoUpdate ? "#25A542" : "#AA2B0E" }
+            onValueChange={ () => {
+              let newUpdate = !this.state.autoUpdate
+              this.setState({autoUpdate: newUpdate})
+            }}
+             value={this.state.autoUpdate} />
+          </Right>
+        </View>
 
           <View style={styles.myForm}>
           <Form>
@@ -288,6 +315,7 @@ export default class App extends Component {
               <IconC name='currency-usd' style={styles.branco} />
               <Input placeholder={ i18n.t('dollar') }  style={styles.branco} 
               keyboardType='numeric'
+              placeholderTextColor='#fff' 
               onChangeText={(text) => this.currencyOnly('inputUSD', text)} 
               value={this.state.inputUSD} />
             </Item>
@@ -296,6 +324,7 @@ export default class App extends Component {
               <IconC name='currency-brl' style={styles.branco} />
               <Input placeholder={ i18n.t('real') }  style={styles.branco} 
               keyboardType='numeric'
+              placeholderTextColor='#fff' 
               onChangeText={(text) => this.currencyOnly('inputBRL', text)} 
               value={this.state.inputBRL} />
             </Item>
@@ -304,6 +333,7 @@ export default class App extends Component {
               <IconB name='bitcoin' style={styles.branco} />
               <Input placeholder={ i18n.t('bitcoin') } style={styles.branco} 
               keyboardType='numeric'
+              placeholderTextColor='#fff' 
               onChangeText={(text) => this.currencyOnly('inputBTC', text)} 
               value={this.state.inputBTC} />
             </Item>
@@ -337,6 +367,7 @@ export default class App extends Component {
         </View>
 
         </Content>
+        </ImageBackground>
       </Container>
       // </StyleProvider>
     );
@@ -345,18 +376,21 @@ export default class App extends Component {
 
 const styles = StyleSheet.create({
   myContent: {
-    backgroundColor: '#000',
+    // backgroundColor: '#f00',
   },
   display: {
     padding: 10,
     paddingBottom: 20,
     backgroundColor: '#444',
+    opacity: 0.7,
     alignItems: 'center'
   },
   myForm: {
     padding: 10,
     margin: 10,
     backgroundColor: '#000',
+    borderRadius: 20,
+    opacity: 0.65,
   },
 
   displayText: {
@@ -402,7 +436,7 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
     borderRadius: 10,
-    backgroundColor: '#444'
+    backgroundColor: '#999'
   },
   myHeader: {
     backgroundColor: '#111',
@@ -416,6 +450,11 @@ const styles = StyleSheet.create({
   },
   hidden: {
     display: "none"
-  }
+  },
+  imageBG: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+  },
 });
 
