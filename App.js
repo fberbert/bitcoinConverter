@@ -281,7 +281,7 @@ export default class App extends Component {
             </Right>
         </Header>
 
-          <ImageBackground source={require('./src/icons/btc-wallpaper.png')}
+          <ImageBackground source={require('./src/icons/btc-wallpaper.jpg')}
           resizeMode="stretch"
           style={styles.imageBG}>
         <Content style={styles.myContent}>

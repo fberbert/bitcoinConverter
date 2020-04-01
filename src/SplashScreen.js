@@ -32,7 +32,7 @@ export default class SplashScreen extends Component {
   render() {
     return (
       <View style={{flex: 1, backgroundColor: 'rgba(0, 0, 0, 1)'}}>
-      <ImageBackground source={require('./icons/btc-wallpaper.png')}
+      <ImageBackground source={require('./icons/btc-wallpaper.jpg')}
         resizeMode="stretch"
         style={imageBG}>
       </ImageBackground>
