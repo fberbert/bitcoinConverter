@@ -10,6 +10,7 @@ import IconC from 'react-native-vector-icons/MaterialCommunityIcons'
 import 'intl'
 import 'intl/locale-data/jsonp/pt-BR'
 import 'intl/locale-data/jsonp/en'
+import AsyncStorage from '@react-native-community/async-storage'
 // import getTheme from './native-base-theme/components'
 import i18n from './src/i18n'
 import { NativeModules, Platform } from 'react-native'
@@ -35,9 +36,98 @@ if (Object.keys(i18n.translations).includes(deviceLanguage)) {
 } // else default i18n.js applies
 // console.log('i18n: ' + i18n.locale);
 
-export default class App extends Component {
+const styles = StyleSheet.create({
+  myContent: {
+    // backgroundColor: '#f00',
+  },
+  display: {
+    padding: 10,
+    paddingBottom: 20,
+    backgroundColor: '#444',
+    opacity: 0.7,
+    alignItems: 'center'
+  },
+  myForm: {
+    padding: 10,
+    margin: 10,
+    backgroundColor: '#000',
+    borderRadius: 20,
+    opacity: 0.65,
+  },
 
-  state = {
+  displayText: {
+    textAlign: 'left',
+    color: '#fff',
+    fontSize: 20,
+  },
+  linha: {
+    flexDirection: 'row'
+  },
+  bitcao: {
+    justifyContent: 'center',
+    padding: 10,
+  },
+  bitcaoText: {
+    fontSize: 50,
+    color: '#fff',
+  },
+  branco: {
+    color: '#fff',
+  },
+  preto: {
+    color: '#000',
+  },
+  verde: {
+    color: '#0f0',
+  },
+  vermelho: {
+    color: '#f00',
+  },
+  cinza: {
+    color: '#444',
+  },
+  viewCalcular: {
+    flexDirection: 'row',
+    padding: 20,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'space-around'
+  },
+  butCalcular: {
+    width: '45%',
+    padding: 15,
+    alignItems: "center",
+    borderRadius: 10,
+    backgroundColor: '#999'
+  },
+  myHeader: {
+    backgroundColor: '#111',
+  },
+  myHeaderBody: {
+    flex: 3,
+    alignItems: 'center'
+  },
+  iconB: {
+    marginRight: 10,
+  },
+  hidden: {
+    display: "none"
+  },
+  imageBG: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+  },
+  myShadow: {
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 2, height: 2 }, 
+    textShadowRadius: 1,
+  }
+});
+
+
+
+const initialState = {
     cotacaoBTCUSD: '0',
     cotacaoBTCBRL: '0',
     cotacaoUSDBRL: '0',
@@ -52,16 +142,28 @@ export default class App extends Component {
     showHome: true,
     showSobre: false,
     autoUpdate: true,
+    defaultCalc: 'usd',
+}
+
+export default class App extends Component {
+
+  state = {
+    ...initialState
   }
 
   async componentDidMount() {
     // this._isMounted = true;
+
+    const stateString = await AsyncStorage.getItem('bcState')
+    const state = JSON.parse(stateString) || initialState
+    this.setState(state)
 
     this.getCotacaoBTCUSD()
     this.getCotacaoBTCBRL()
 
     this.timer = setInterval( () => this.getCotacaoBTCUSD(), 60000)
     this.timer = setInterval( () => this.getCotacaoBTCBRL(), 60000)
+    this.timer = setInterval( () => this.syncState(), 10000)
   }
 
   componentWillUnmount() {
@@ -168,24 +270,26 @@ export default class App extends Component {
     var qBRL = this.state.inputBRL;
     var qBTC = this.state.inputBTC;
 
-    // console.log('USD: ' + qUSD);
-
-    if (qUSD) {
+    if (this.state.defaultCalc==='usd' && qUSD) {
       qUSD = qUSD.replace(/\./,'');
       qUSD = qUSD.replace(/\,/,'.');
 
       qBTC = (qUSD / this.state.cotacaoBTCUSD).toFixed(8);
       qBRL = qBTC * this.state.cotacaoBTCBRL;
-    } else if (qBRL) {
+
+    } else if (this.state.defaultCalc==='brl' && qBRL) {
       qBRL = qBRL.replace(/\./,'');
       qBRL = qBRL.replace(/\,/,'.');
 
       qBTC = (qBRL / this.state.cotacaoBTCBRL).toFixed(8);
       qUSD = qBTC * this.state.cotacaoBTCUSD;
-    } else if (qBTC) {
+
+    } else if (this.state.defaultCalc==='btc' && qBTC) {
       qUSD = qBTC * this.state.cotacaoBTCUSD;
       qBRL = qBTC * this.state.cotacaoBTCBRL;
     }
+
+    // console.log(`usd:  ${qUSD} ${this.state.defaultCalc}`);
 
     (qUSD) ? qUSD = (this.formatarMoeda(qUSD, 'USD')).replace(/US\$/, '') : null;
     (qBRL) ? qBRL = (this.formatarMoeda(qBRL, 'BRL')).replace(/R\$/, '') : null;
@@ -200,6 +304,8 @@ export default class App extends Component {
       inputBRL: qBRL,
       inputBTC: qBTC
     });
+
+    this.syncState()
   }
 
   limpar() {
@@ -207,7 +313,12 @@ export default class App extends Component {
       inputUSD: null,
       inputBRL: null,
       inputBTC: null
-    });
+    })
+    this.syncState()
+  }
+
+  syncState() {
+    AsyncStorage.setItem('bcState', JSON.stringify(this.state))
   }
 
   setLoaded() {
@@ -322,6 +433,7 @@ export default class App extends Component {
             onValueChange={ () => {
               let newUpdate = !this.state.autoUpdate
               this.setState({autoUpdate: newUpdate})
+              this.syncState()
             }}
              value={this.state.autoUpdate} />
           </Right>
@@ -335,6 +447,7 @@ export default class App extends Component {
               keyboardType='numeric'
               placeholderTextColor='#fff' 
               onChangeText={(text) => this.currencyOnly('inputUSD', text)} 
+              onFocus={() => this.setState({defaultCalc: 'usd'})}
               value={this.state.inputUSD} />
             </Item>
 
@@ -344,6 +457,7 @@ export default class App extends Component {
               keyboardType='numeric'
               placeholderTextColor='#fff' 
               onChangeText={(text) => this.currencyOnly('inputBRL', text)} 
+              onFocus={() => this.setState({defaultCalc: 'brl'})}
               value={this.state.inputBRL} />
             </Item>
 
@@ -353,6 +467,7 @@ export default class App extends Component {
               keyboardType='numeric'
               placeholderTextColor='#fff' 
               onChangeText={(text) => this.currencyOnly('inputBTC', text)} 
+              onFocus={() => this.setState({defaultCalc: 'btc'})}
               value={this.state.inputBTC} />
             </Item>
           </Form>
@@ -391,93 +506,4 @@ export default class App extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  myContent: {
-    // backgroundColor: '#f00',
-  },
-  display: {
-    padding: 10,
-    paddingBottom: 20,
-    backgroundColor: '#444',
-    opacity: 0.7,
-    alignItems: 'center'
-  },
-  myForm: {
-    padding: 10,
-    margin: 10,
-    backgroundColor: '#000',
-    borderRadius: 20,
-    opacity: 0.65,
-  },
-
-  displayText: {
-    textAlign: 'left',
-    color: '#fff',
-    fontSize: 20,
-  },
-  linha: {
-    flexDirection: 'row'
-  },
-  bitcao: {
-    justifyContent: 'center',
-    padding: 10,
-  },
-  bitcaoText: {
-    fontSize: 50,
-    color: '#fff',
-  },
-  branco: {
-    color: '#fff',
-  },
-  preto: {
-    color: '#000',
-  },
-  verde: {
-    color: '#0f0',
-  },
-  vermelho: {
-    color: '#f00',
-  },
-  cinza: {
-    color: '#444',
-  },
-  viewCalcular: {
-    flexDirection: 'row',
-    padding: 20,
-    marginTop: 10,
-    alignItems: 'center',
-    justifyContent: 'space-around'
-  },
-  butCalcular: {
-    width: '45%',
-    padding: 15,
-    alignItems: "center",
-    borderRadius: 10,
-    backgroundColor: '#999'
-  },
-  myHeader: {
-    backgroundColor: '#111',
-  },
-  myHeaderBody: {
-    flex: 3,
-    alignItems: 'center'
-  },
-  iconB: {
-    marginRight: 10,
-  },
-  hidden: {
-    display: "none"
-  },
-  imageBG: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "center",
-  },
-  myShadow: {
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 2, height: 2 }, 
-    textShadowRadius: 1,
-  }
-});
 
