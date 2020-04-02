@@ -147,10 +147,14 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('bitcoinConverter.keystore')
-            storePassword 'bitcoinConverter'
-            keyAlias 'bitcoinConverter'
-            keyPassword 'bitcoinConverter'
+            // storeFile file('bitcoinConverter.keystore')
+            // storePassword '...'
+            // keyAlias '...'
+            // keyPassword '...'
+            // storeFile getProperty("storeFile")
+            // storePassword getProperty("storePassword")
+            // keyAlias getProperty("keyAlias")
+            // keyPassword getProperty("keyPassword")
         }
     }
     buildTypes {
