@@ -147,10 +147,10 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('fabio-key.keystore')
-            storePassword '907019'
-            keyAlias 'fabio-key'
-            keyPassword '907019'
+            storeFile file('bitcoinConverter.keystore')
+            storePassword 'bitcoinConverter'
+            keyAlias 'bitcoinConverter'
+            keyPassword 'bitcoinConverter'
         }
     }
     buildTypes {
