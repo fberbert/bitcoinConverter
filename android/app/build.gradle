@@ -128,7 +128,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.bitcoinconverter"
+        applicationId "com.bitcoinconverter2"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4
@@ -151,10 +151,10 @@ android {
             // storePassword '...'
             // keyAlias '...'
             // keyPassword '...'
-            // storeFile getProperty("storeFile")
-            // storePassword getProperty("storePassword")
-            // keyAlias getProperty("keyAlias")
-            // keyPassword getProperty("keyPassword")
+            storeFile file('bitcoinConverter.keystore')
+            storePassword 'bitcoinConverter'
+            keyAlias 'bitcoinConverter'
+            keyPassword 'bitcoinConverter'
         }
     }
     buildTypes {

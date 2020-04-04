@@ -1,4 +1,4 @@
-package com.bitcoinconverter;
+package com.bitcoinconverter2;
 
 import com.facebook.react.ReactActivity;
 

@@ -1,4 +1,4 @@
-package com.bitcoinconverter;
+package com.bitcoinconverter2;
 
 import android.app.Application;
 import android.content.Context;
