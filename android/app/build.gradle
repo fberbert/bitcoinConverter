@@ -131,8 +131,8 @@ android {
         applicationId "com.bitcoinconverter2"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "1.12"
+        versionCode 6
+        versionName "1.14"
     }
     splits {
         abi {
@@ -146,6 +146,16 @@ android {
         }
     }
     signingConfigs {
+        release {
+            // storeFile file('bitcoinConverter.keystore')
+            // storePassword '...'
+            // keyAlias '...'
+            // keyPassword '...'
+            storeFile file('bitcoinConverter.keystore')
+            storePassword 'bitcoinConverter'
+            keyAlias 'bitcoinConverter'
+            keyPassword 'bitcoinConverter'
+	}
         debug {
             // storeFile file('bitcoinConverter.keystore')
             // storePassword '...'
@@ -158,9 +168,6 @@ android {
         }
     }
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-        }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://facebook.github.io/react-native/docs/signed-apk-android.
@@ -168,6 +175,9 @@ android {
             shrinkResources true
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
     // applicationVariants are e.g. debug, release
